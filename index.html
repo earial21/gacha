@@ -4,53 +4,50 @@
 <meta charset="UTF-8">
 <title>펫 승급 시뮬레이터</title>
 <style>
-  body {font-family: sans-serif; background:#000; color:#fff; margin:0; padding:20px; min-height:100vh;}
-  .wrap {max-width:1500px; margin:auto; display:flex; gap:30px; flex-wrap:wrap;}
-  .box {background:#111; border-radius:20px; padding:30px; flex:1; min-width:380px;}
-  h1 {text-align:center; color:gold; font-size:38px;}
-  .money {text-align:center; font-size:28px; background:#222; padding:18px; border-radius:14px; margin-bottom:25px;}
-  .shop {display:flex; gap:15px; margin:30px 0;}
-  .btn {flex:1; padding:22px; font-size:20px; border:none; border-radius:14px; cursor:pointer; font-weight:bold;}
+  body {font-family: 'Malgun Gothic', sans-serif; background:#000; color:#fff; margin:0; padding:20px; min-height:100vh;}
+  .wrap {max-width:1600px; margin:auto; display:grid; grid-template-columns: 1fr 480px; gap:30px;}
+  .main {background:linear-gradient(135deg,#111,#1a1a2e); border-radius:25px; padding:35px; box-shadow:0 0 40px rgba(255,215,0,0.2);}
+  .money {text-align:center; font-size:26px; background:#222; padding:20px; border-radius:16px; margin-bottom:25px;}
+  .shop {display:grid; grid-template-columns:1fr 1fr; gap:15px; margin:30px 0;}
+  .btn {padding:22px; font-size:21px; border:none; border-radius:16px; cursor:pointer; font-weight:bold;}
   .n{background:#43a047} .p{background:#8e24aa;color:#fff} .c{background:#ff9800}
-  .auto1{background:#d50000; box-shadow:0 0 30px #f00;}
-  .auto2{background:#6a1b9a; box-shadow:0 0 30px #90f;}
-  .auto1.on,.auto2.on {background:#00c853; box-shadow:0 0 40px #0f0; animation: pulse 1s infinite;}
-  @keyframes pulse {0%{box-shadow:0 0 40px #0f0} 50%{box-shadow:0 0 60px #0f0} 100%{box-shadow:0 0 40px #0f0}}
+  .auto1{background:#d50000; box-shadow:0 0 30px #f00;} .auto2{background:#6a1b9a; box-shadow:0 0 30px #90f;}
+  .auto1.on,.auto2.on {background:#00c853; box-shadow:0 0 60px #0f0; animation:pulse 1s infinite;}
+  @keyframes pulse {0%,100%{box-shadow:0 0 60px #0f0} 50%{box-shadow:0 0 90px #0f0}}
+  .slotbox {display:flex; justify-content:center; gap:40px; margin:40px 0;}
+  .slot {width:160px; height:160px; border:6px dashed #666; border-radius:30px; display:flex; flex-direction:column; justify-content:center; align-items:center; font-size:18px; background:#111;}
+  .slot.f {border-style:solid; background:#222;}
+  #upbtn {width:100%; padding:32px; font-size:34px; background:#d32f2f; border:none; border-radius:20px; color:white; font-weight:bold; margin:20px 0;}
+  .log {height:220px; overflow-y:auto; background:#000; padding:18px; border-radius:14px; font-size:15px;}
+  .legend-title {text-align:center; color:gold; font-size:32px; margin:0; text-shadow:0 0 15px gold;}
+  .legend-big {font-size:60px; font-weight:bold; color:#ffd700; text-align:center; margin:15px 0; text-shadow:0 0 30px gold;}
+  .legend-list {background:#111; border:3px solid gold; border-radius:18px; padding:20px; max-height:500px; overflow-y:auto;}
+  .legend-item {background:linear-gradient(90deg,#222,#333); margin:12px 0; padding:18px; border-radius:14px; border-left:6px solid gold; font-size:18px;}
   .grid {display:grid; grid-template-columns:repeat(auto-fill,minmax(135px,1fr)); gap:16px; max-height:700px; overflow-y:auto;}
-  .legend-grid {display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:18px; max-height:400px; overflow-y:auto; background:#1a1a1a; padding:20px; border-radius:16px; border:4px solid gold;}
-  .pet {height:135px; border-radius:18px; display:flex; flex-direction:column; justify-content:center; align-items:center; cursor:pointer; font-weight:bold; border:5px solid #444; transition:0.3s;}
+  .legend-grid {display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:18px; background:#1a001a; padding:20px; border-radius:16px; border:4px solid gold;}
+  .pet {height:135px; border-radius:18px; display:flex; flex-direction:column; justify-content:center; align-items:center; cursor:pointer; font-weight:bold; border:5px solid #444;}
   .pet:hover {transform:scale(1.12);}
   .pet.s {border:8px solid yellow; box-shadow:0 0 50px yellow;}
-  .l1{background:#2e7d32} .l2{background:#1565c0} .l3{background:#8e24aa} .l4{background:#e91e63} .l5{background:#ffb300;color:#000;box-shadow:0 0 50px gold; border:6px solid #ff8f00 !important;}
-  .slotbox {display:flex; justify-content:center; gap:40px; margin:40px 0;}
-  .slot {width:155px; height:155px; border:6px dashed #666; border-radius:28px; display:flex; flex-direction:column; justify-content:center; align-items:center; font-size:17px;}
-  .slot.f {border-style:solid;}
-  .prob {text-align:center; font-size:38px; font-weight:bold; padding:22px; background:#222; border-radius:16px;}
-  #upbtn {width:100%; padding:30px; font-size:32px; background:#d32f2f; border:none; border-radius:20px; color:white;}
-  .log {height:280px; overflow-y:auto; background:#000; padding:20px; border-radius:14px; font-size:15px;}
-  .record {background:#222; padding:20px; border-radius:14px; margin-top:20px;}
-  .rec {background:#333; margin:8px 0; padding:12px; border-radius:10px; border-left:5px solid gold;}
+  .l1{background:#2e7d32} .l2{background:#1565c0} .l3{background:#8e24aa} .l4{background:#e91e63} .l5{background:#ffb300;color:#000;box-shadow:0 0 60px gold;}
 </style>
 </head>
 <body>
 
 <div class="wrap">
-  <div class="box">
+  <div class="main">
     <h1>펫 승급 시뮬레이터</h1>
+
     <div class="money">
-      보유: <span id="m">1,000,000</span>원 | 
-      이번 오토 사용: <span id="session">0</span>원
+      보유 금액: <span id="m">1,000,000</span>원<br>
+      <span style="font-size:20px; color:#ffeb3b;">이번 오토 사용: <span id="session">0</span>원</span>
     </div>
 
     <div class="shop">
-      <button class="btn n" onclick="buy(10000,3)">일반</button>
+      <button class="btn n" onclick="buy(10000,3)">일반티켓</button>
       <button class="btn p" onclick="buy(100000,4)">프리미엄</button>
       <button class="btn c" onclick="charge()">충전</button>
-    </div>
-
-    <div class="shop">
       <button class="btn auto1" id="btn1" onclick="toggleAuto(1)">전설 1마리면 멈춤</button>
-      <button class="btn auto2" id="btn2" onclick="toggleAuto(2)">무한 오토 + 기록</button>
+      <button class="btn auto2" style="grid-column:span 2;" id="btn2" onclick="toggleAuto(2)">무한 오토 + 기록</button>
     </div>
 
     <div class="slotbox">
@@ -59,30 +56,34 @@
       <div class="slot" id="s2">3번 재료</div>
     </div>
 
-    <div class="prob" id="p">-</div>
     <button id="upbtn" onclick="upgrade()">승급 시도</button>
 
-    <div class="log" id="l">버튼 누르면 미친듯이 돌아갑니다!</div>
-
-    <div class="record">
-      <h3 style="color:gold; margin:0 0 15px;">전설 획득 기록</h3>
-      <div id="records">아직 없음</div>
-    </div>
+    <div class="log" id="l">준비 완료!</div>
   </div>
 
-  <div class="box">
-    <h2>일반 펫 목록</h2>
-    <div class="grid" id="g"></div>
+  <div class="side">
+    <div class="box" style="background:linear-gradient(135deg,#1a0033,#000); border:3px solid gold;">
+      <h2 class="legend-title">전설 획득 기록</h2>
+      <div class="legend-big" id="latest">전설을 기다리는 중...</div>
+      <div class="legend-list" id="records">여기에 기록이 쌓입니다</div>
+    </div>
 
-    <h2 style="color:gold; margin:30px 0 10px;">★★ 전설 펫 보관함 ★★</h2>
-    <div class="legend-grid" id="legendBox">전설은 여기로 자동 이동!</div>
+    <div class="box">
+      <h2 style="color:#fff; text-align:center;">일반 펫 목록</h2>
+      <div class="grid" id="g"></div>
+    </div>
+
+    <div class="box">
+      <h2 style="color:gold; text-align:center; text-shadow:0 0 15px gold;">★★ 전설 펫 보관함 ★★</h2>
+      <div class="legend-grid" id="legendBox">전설은 여기로 안전 이동!</div>
+    </div>
   </div>
 </div>
 
 <script>
 let pets = [], sel = [], money = 1000000, id = 0;
 let totalSpent = 0, sessionSpent = 0;
-let autoMode = 0, timer = null;
+let autoMode = 0, running = false;
 let startLegends = 0;
 let records = [];
 
@@ -90,52 +91,37 @@ const 등급 = ['','고급','레어','엘리트','에픽','전설'];
 const 확률 = [0,0.3,0.3,0.25,0.2];
 
 function 이름(){
-  const a = ['용맹한','신비로운','날렵한','불타는','얼음','번개','어둠의','빛나는','전설의','야생의','강철','마법의'];
-  const b = ['','왕 ','수호 ','파괴자 ','전사 ','영웅 ','제왕 '];
-  const c = ['사자','호랑이','용','늑대','여우','표범','곰','불사조','유니콘','그리핀','페가수스','케르베로스'];
+  const a = ['용맹한','신비로운','날렵한','불타는','얼음','번개','어둠의','빛나는','전설의','야생의','강철','마법의','신성한'];
+  const b = ['','왕 ','수호 ','파괴자 ','전사 ','영웅 ','제왕 ','절대 '];
+  const c = ['사자','호랑이','용','늑대','여우','표범','곰','불사조','유니콘','그리핀','페가수스','케르베로스','히드라'];
   return a[Math.floor(Math.random()*a.length)] + b[Math.floor(Math.random()*b.length)] + c[Math.floor(Math.random()*c.length)];
 }
 
-function charge(){
-  money += 1000000; totalSpent += 1000000; sessionSpent += 1000000;
-  document.getElementById('m').textContent = money.toLocaleString();
-  document.getElementById('session').textContent = sessionSpent.toLocaleString();
-}
+function charge(){ money += 1000000; totalSpent += 1000000; sessionSpent += 1000000; updateMoney(); }
+function updateMoney(){ document.getElementById('m').textContent = money.toLocaleString(); document.getElementById('session').textContent = sessionSpent.toLocaleString(); }
 
 function buy(cost, max){
-  if(money < cost){ if(autoMode) charge(); return; }
-  money -= cost; totalSpent += cost; sessionSpent += cost;
-  document.getElementById('m').textContent = money.toLocaleString();
-  document.getElementById('session').textContent = sessionSpent.toLocaleString();
-
+  if(money < cost){ if(running) charge(); return; }
+  money -= cost; totalSpent += cost; sessionSpent += cost; updateMoney();
   const lv = Math.floor(Math.random()*max)+1;
   pets.push({id: id++, n: 이름(), lv: lv});
   render();
-
-  if(lv === 5) moveToLegendBox(pets[pets.length-1]);
+  if(lv === 5) moveToLegendBox(pets.at(-1));
 }
 
 function moveToLegendBox(pet){
   checkLegend();
-  render();
-  renderLegendBox();
+  render(); renderLegendBox();
 }
 
 function render(){
-  const g = document.getElementById('g');
-  g.innerHTML = '';
+  const g = document.getElementById('g'); g.innerHTML = '';
   const baseLv = sel.length ? pets.find(p=>p.id===sel[0])?.lv : null;
-
   pets.filter(p => p.lv < 5).forEach(p => {
     const d = document.createElement('div');
     d.className = `pet l${p.lv} ${sel.includes(p.id)?'s':''}`;
     if(sel.length && !sel.includes(p.id) && p.lv !== baseLv) d.style.opacity = '0.3';
-    d.onclick = () => {
-      if(d.style.opacity === '0.3') return;
-      if(sel.includes(p.id)) sel = sel.filter(x => x !== p.id);
-      else if(sel.length < 3) sel.push(p.id);
-      render(); updateSlot();
-    };
+    d.onclick = () => { if(d.style.opacity==='0.3') return; sel.includes(p.id)? sel=sel.filter(x=>x!==p.id) : sel.length<3 && sel.push(p.id); render(); updateSlot(); };
     d.innerHTML = `<div>${p.n}</div><div>${등급[p.lv]}</div>`;
     g.appendChild(d);
   });
@@ -143,26 +129,23 @@ function render(){
 
 function renderLegendBox(){
   const box = document.getElementById('legendBox');
-  const legends = pets.filter(p => p.lv === 5);
-  box.innerHTML = legends.length === 0 ? '아직 전설이 없습니다' : '';
+  const legends = pets.filter(p=>p.lv===5);
+  box.innerHTML = legends.length===0 ? '<div style="text-align:center;color:#666;font-size:20px;">아직 전설이 없습니다</div>' : '';
   legends.forEach(p => {
     const d = document.createElement('div');
-    d.className = 'pet l5';
-    d.style.cursor = 'default';
-    d.innerHTML = `<div style="font-size:18px">${p.n}</div><div>전설</div>`;
+    d.className = 'pet l5'; d.style.cursor='default';
+    d.innerHTML = `<div style="font-size:19px">${p.n}</div><div style="color:gold;font-weight:bold;">전설</div>`;
     box.appendChild(d);
   });
 }
 
 function updateSlot(){
-  for(let i=0; i<3; i++){
+  for(let i=0;i<3;i++){
     const s = document.getElementById('s'+i);
-    if(i < sel.length){
-      const p = pets.find(x=>x.id===sel[i]);
-      if(p){
-        s.innerHTML = `<div>${p.n}</div><div>${등급[p.lv]}</div>`;
-        s.className = `slot l${p.lv} f`;
-      }
+    if(i < sel.length && pets.find(p=>p.id===sel[i])?.lv < 5){
+      const p = pets.find(p=>p.id===sel[i]);
+      s.innerHTML = `<div>${p.n}</div><div>${등급[p.lv]}</div>`;
+      s.className = `slot l${p.lv} f`;
     } else {
       s.innerHTML = i===0?'1번 기준':'재료';
       s.className = 'slot';
@@ -172,32 +155,25 @@ function updateSlot(){
 }
 
 function upgrade(){
-  if(sel.length !== 3) return;
+  if(sel.length!==3) return;
   const base = pets.find(p=>p.id===sel[0]);
-  if(!base || base.lv >= 5) return;
-
   pets = pets.filter(p => !sel.slice(1).includes(p.id));
   sel = [];
-
   if(Math.random() < 확률[base.lv]){
-    base.lv++;
-    base.n += "★";
-    if(base.lv === 5) moveToLegendBox(base);
+    base.lv++; base.n += "★";
+    if(base.lv===5) moveToLegendBox(base);
   }
   render(); updateSlot();
 }
 
 function autoSelect(){
   const cnt = [0,0,0,0,0,0];
-  pets.forEach(p => { if(p.lv < 5) cnt[p.lv]++; });
-
-  for(let i=4; i>=1; i--){
-    if(cnt[i] >= 3){
-      const candidates = pets.filter(p => p.lv === i);
-      sel = [candidates[0].id, candidates[1].id, candidates[2].id];
-      render(); updateSlot();
-      return true;
-    }
+  pets.forEach(p => p.lv<5 && cnt[p.lv]++);
+  for(let i=4;i>=1;i--) if(cnt[i]>=3){
+    const cand = pets.filter(p=>p.lv===i);
+    sel = [cand[0].id, cand[1].id, cand[2].id];
+    render(); updateSlot();
+    return true;
   }
   return false;
 }
@@ -205,13 +181,22 @@ function autoSelect(){
 function checkLegend(){
   const now = pets.filter(p=>p.lv===5).length;
   if(now > startLegends){
-    records.push({num: records.length+1, spent: sessionSpent, total: totalSpent});
-    updateRecords();
-    log(`★★ 전설 ${records.length}마리째! 이번: ${sessionSpent.toLocaleString()}원`);
+    const thisSpent = sessionSpent;
+    records.push({num: records.length+1, spent: thisSpent, total: totalSpent});
+    
+    document.getElementById('latest').innerHTML = `
+      <div style="font-size:28px; color:#fff;">#${records.length} 전설!</div>
+      <div style="color:#ffeb3b;">이번 비용</div>
+      <div style="font-size:55px;">${thisSpent.toLocaleString()}원</div>
+      <div style="color:#888;">누적: ${totalSpent.toLocaleString()}원</div>
+    `;
 
-    if(autoMode === 1){
-      stopAuto();
-      alert(`전설 ${records.length}마리째 획득!\n이번 오토 사용 금액: ${sessionSpent.toLocaleString()}원`);
+    updateRecords();
+    log(`전설 ${records.length}마리째! ${thisSpent.toLocaleString()}원`);
+
+    if(autoMode===1){
+      running = false;
+      alert(`전설 ${records.length}마리째!\n이번 비용: ${thisSpent.toLocaleString()}원`);
     } else {
       sessionSpent = 0;
       document.getElementById('session').textContent = '0';
@@ -221,53 +206,51 @@ function checkLegend(){
 
 function updateRecords(){
   const r = document.getElementById('records');
-  if(records.length===0){ r.innerHTML = '아직 없음'; return; }
   r.innerHTML = '';
-  records.forEach(rec => {
+  records.slice().reverse().forEach(rec => {
     const d = document.createElement('div');
-    d.className = 'rec';
+    d.className = 'legend-item';
     d.innerHTML = `<b>#${rec.num} 전설</b><br>이번: <span style="color:#ffeb3b">${rec.spent.toLocaleString()}</span>원<br>누적: <span style="color:#4caf50">${rec.total.toLocaleString()}</span>원`;
     r.appendChild(d);
   });
 }
 
-function loop(){
-  if(autoSelect()){
-    upgrade();
-  } else {
-    if(money < 100000) charge();
-    else buy(100000,4);
+// 진짜 돌아가는 오토 루프 (무조건 작동 보장)
+function gameLoop(){
+  if(!running) return;
+  
+  for(let i=0; i<500; i++){  // 한 프레임에 500번 실행 → 미친 속도
+    if(autoSelect()){
+      upgrade();
+    } else {
+      if(money < 100000) charge();
+      else buy(100000,4);
+    }
   }
+  
+  requestAnimationFrame(gameLoop);
 }
 
 function toggleAuto(mode){
   if(autoMode === mode){
-    stopAuto();
+    running = false;
+    autoMode = 0;
+    document.getElementById('btn1').classList.remove('on'); document.getElementById('btn1').textContent = '전설 1마리면 멈춤';
+    document.getElementById('btn2').classList.remove('on'); document.getElementById('btn2').textContent = '무한 오토 + 기록';
+    log('오토 정지');
     return;
   }
-  stopAuto();
 
+  running = true;
   autoMode = mode;
   sessionSpent = 0;
   startLegends = pets.filter(p=>p.lv===5).length;
   document.getElementById('session').textContent = '0';
-
   document.getElementById('btn'+mode).classList.add('on');
   document.getElementById('btn'+mode).textContent = mode===1?'작동중 (1마리 멈춤)':'작동중 (무한 기록)';
-
-  log(mode===1?'전설 1마리면 멈추는 오토 시작!':'무한 오토 시작!');
-  timer = setInterval(loop, 0);  // 최대 속도
-}
-
-function stopAuto(){
-  clearInterval(timer);
-  timer = null;
-  autoMode = 0;
-  document.getElementById('btn1').classList.remove('on');
-  document.getElementById('btn2').classList.remove('on');
-  document.getElementById('btn1').textContent = '전설 1마리면 멈춤';
-  document.getElementById('btn2').textContent = '무한 오토 + 기록';
-  log('오토 정지');
+  log(mode===1?'전설 1마리 모드 시작!':'무한 기록 모드 시작!');
+  
+  gameLoop();  // 즉시 시작
 }
 
 function log(t){
