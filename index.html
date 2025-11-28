@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>펫 승급 시뮬레이터</title>
+<title>펫 럭키박스</title>
 <style>
   body {font-family: 'Malgun Gothic', sans-serif; background:#000; color:#fff; margin:0; padding:20px; min-height:100vh;}
   .wrap {max-width:1400px; margin:auto;}
@@ -37,23 +37,24 @@
   .legend-card .cost {font-size:28px; color:#fff;}
 
   .legend-title {text-align:center; color:gold; font-size:32px; margin:20px 0 10px; text-shadow:0 0 15px gold;}
+  .info {color:#ff5252; font-size:15px; text-align:center; margin-top:15px; line-height:1.6;}
 </style>
 </head>
 <body>
 
 <div class="wrap">
   <div class="main">
-    <h1>펫 승급 시뮬레이터 - 속도 조절 완벽 수정</h1>
+    <h1>펫 럭키박스 시뮬레이터<br><span style="font-size:22px;color:#ff5252;">2025년 천장 없음</span></h1>
 
     <div class="money">
-      보유 금액: <span id="m">1,000,000</span>원<br>
-      <span style="font-size:20px; color:#ffeb3b;">이번 오토 사용: <span id="session">0</span>원</span>
+      보유 금액: <span id="won">100,000</span>원<br>
+      <span style="font-size:20px; color:#ffeb3b;">이번 세션 소비: <span id="sessionWon">0</span>원</span>
     </div>
 
     <div class="shop">
-      <button class="btn n" onclick="buy(10000,3)">일반티켓</button>
-      <button class="btn p" onclick="buy(100000,4)">프리미엄</button>
-      <button class="btn c" onclick="charge()">충전</button>
+      <button class="btn n" onclick="buyNormal()">일반 티켓 10묶음<br><small>20,000원</small></button>
+      <button class="btn p" onclick="buyPremium()">프리미엄 티켓 10묶음<br><small>30,000원</small></button>
+      <button class="btn c" onclick="charge()">10만원 충전</button>
       <button class="btn auto1" id="btn1" onclick="toggleAuto(1)">전설 1마리면 멈춤</button>
       <button class="btn auto2" id="btn2" onclick="toggleAuto(2)">무한 오토 + 기록</button>
     </div>
@@ -76,43 +77,72 @@
       <div class="grid" id="g"></div>
     </div>
 
-    <h2 class="legend-title">★★ 전설 획득 기록 ★★</h2>
+    <h2 class="legend-title">★★ 전설 펫 획득 기록 ★★</h2>
     <div class="legend-records">
-      <div class="inner" id="records">아직 전설이 없습니다</div>
+      <div class="inner" id="records">아직 전설 펫이 없습니다...</div>
+    </div>
+
+    <div class="info">
+      ※ 프리미엄 티켓: 전설 0% · 에픽 1% · 엘리트 3% · 레어 17% · 고급 79%<br>
+      ※ 일반 티켓: 전설 0% · 에픽 0% · 엘리트 0.5% · 레어 5% · 고급 94.5%<br>
+      ※ 승급 성공 확률 → 고급 30% · 레어 30% · 엘리트 25% · 에픽 20%
     </div>
   </div>
 </div>
 
 <script>
-let pets = [], sel = [], money = 1000000, id = 0;
+let pets = [], sel = [], won = 100000, id = 0;
 let totalSpent = 0, sessionSpent = 0;
 let autoMode = 0, running = false;
 let records = [];
 let speed = 'hyper';
 
 const 등급 = ['','고급','레어','엘리트','에픽','전설'];
-const 확률 = [0,0.3,0.3,0.25,0.2];
+
+// 정확한 확정 확률 (2025 최신)
+const 일반티켓 = {1:0.945, 2:0.05, 3:0.005, 4:0,    5:0};     // 고급 94.5%, 레어 5%, 엘리트 0.5%
+const 프리미엄 = {1:0.79,  2:0.17, 3:0.03,  4:0.01, 5:0};     // 고급 79%, 레어 17%, 엘리트 3%, 에픽 1%, 전설 0%
+
+// 승급 성공 확률 (기존 그대로)
+const 승급확률 = [0, 0.30, 0.30, 0.25, 0.20];  // 고급→레어 30%, 레어→엘리트 30%, 엘리트→에픽 25%, 에픽→전설 20%
 
 function 이름(){
-  const a = ['용맹한','신비로운','날렵한','불타는','얼음','번개','어둠의','빛나는','전설의','야생의','강철','마법의','신성한'];
-  const b = ['','왕 ','수호 ','파괴자 ','전사 ','영웅 ','제왕 ','절대 '];
-  const c = ['사자','호랑이','용','늑대','여우','표범','곰','불사조','유니콘','그리핀','페가수스','케르베로스','히드라'];
+  const a = ['용맹한','신비로운','날렵한','불타는','얼음','번개','어둠의','빛나는','전설의','야생의','강철','마법의','신성한','고독한','영원한','황금'];
+  const b = ['','왕 ','수호 ','파괴자 ','전사 ','영웅 ','제왕 ','절대 ','은빛 ','검은 '];
+  const c = ['사자','호랑이','용','늑대','여우','표범','곰','불사조','유니콘','그리핀','페가수스','케르베로스','히드라','드래곤','페어리','스핑크스'];
   return a[Math.floor(Math.random()*a.length)] + b[Math.floor(Math.random()*b.length)] + c[Math.floor(Math.random()*c.length)];
 }
 
-function charge(){ money += 1000000; totalSpent += 1000000; sessionSpent += 1000000; updateMoney(); }
-function updateMoney(){ 
-  document.getElementById('m').textContent = money.toLocaleString(); 
-  document.getElementById('session').textContent = sessionSpent.toLocaleString(); 
+function charge(){ 
+  won += 100000; totalSpent += 100000; sessionSpent += 100000; updateMoney(); 
 }
 
-function buy(cost, max){
-  if(money < cost){ if(running) charge(); return; }
-  money -= cost; totalSpent += cost; sessionSpent += cost; updateMoney();
-  const lv = Math.floor(Math.random()*max)+1;
+function updateMoney(){ 
+  document.getElementById('won').textContent = won.toLocaleString();
+  document.getElementById('sessionWon').textContent = sessionSpent.toLocaleString();
+}
+
+function buyNormal(){
+  if(won < 20000) { alert("금액 부족!"); return; }
+  won -= 20000; totalSpent += 20000; sessionSpent += 20000; updateMoney();
+  for(let i=0; i<10; i++) 뽑기(일반티켓);
+}
+
+function buyPremium(){
+  if(won < 30000) { alert("금액 부족!"); return; }
+  won -= 30000; totalSpent += 30000; sessionSpent += 30000; updateMoney();
+  for(let i=0; i<10; i++) 뽑기(프리미엄);
+}
+
+function 뽑기(표){
+  const r = Math.random();
+  let sum = 0, lv = 1;
+  for(let i=1; i<=5; i++){
+    sum += 표[i] || 0;
+    if(r <= sum){ lv = i; break; }
+  }
   const petName = 이름();
   pets.push({id: id++, n: petName, lv: lv});
-  if(lv === 5) checkLegend(petName);
   render();
 }
 
@@ -128,7 +158,7 @@ function render(){
       sel.includes(p.id) ? sel = sel.filter(x=>x!==p.id) : sel.length<3 && sel.push(p.id); 
       render(); updateSlot(); 
     };
-    d.innerHTML = `<div style="font-size:15px">${p.n}</div><div>${등급[p.lv]}</div>`;
+    d.innerHTML = `<div style="font-size:14px">${p.n}</div><div>${등급[p.lv]}</div>`;
     g.appendChild(d);
   });
 }
@@ -153,7 +183,7 @@ function upgrade(){
   const base = pets.find(p=>p.id===sel[0]);
   pets = pets.filter(p => !sel.slice(1).includes(p.id));
   sel = [];
-  if(Math.random() < 확률[base.lv]){
+  if(Math.random() < 승급확률[base.lv]){
     base.lv++; base.n += "★";
     if(base.lv===5) checkLegend(base.n);
   }
@@ -163,7 +193,7 @@ function upgrade(){
 function autoSelect(){
   const cnt = [0,0,0,0,0,0];
   pets.forEach(p => p.lv<5 && cnt[p.lv]++);
-  for(let i=4;i>=1;i--) if(cnt[i]>=3){
+  for(let i=4; i>=1; i--) if(cnt[i]>=3){
     const cand = pets.filter(p=>p.lv===i && p.lv<5);
     sel = [cand[0].id, cand[1].id, cand[2].id];
     render(); updateSlot();
@@ -183,10 +213,11 @@ function checkLegend(petName){
   
   if(autoMode===1){
     running = false;
-    alert(`전설 ${num}마리째!\n이름: ${petName}\n비용: ${thisSpent.toLocaleString()}원`);
+    toggleAuto(1); // 강제 토글로 버튼 상태 초기화 및 멈춤
+    alert(`전설 펫 ${num}마리째 획득!\n이름: ${petName}\n소비: ${thisSpent.toLocaleString()}원`);
   } else {
     sessionSpent = 0;
-    document.getElementById('session').textContent = '0';
+    updateMoney();
   }
 }
 
@@ -205,32 +236,32 @@ function createCard(r){
 
 function setSpeed(mode){
   speed = mode;
-  document.getElementById('slowBtn').classList.toggle('on', mode === 'slow');
-  document.getElementById('fastBtn').classList.toggle('on', mode === 'fast');
-  document.getElementById('hyperBtn').classList.toggle('on', mode === 'hyper');
-  
-  document.getElementById('slowBtn').textContent = mode === 'slow' ? 'SLOW 모드 (선택됨)' : 'SLOW 모드';
-  document.getElementById('fastBtn').textContent = mode === 'fast' ? 'FAST 모드 (선택됨)' : 'FAST 모드';
-  document.getElementById('hyperBtn').textContent = mode === 'hyper' ? 'HYPER 모드 (선택됨)' : 'HYPER 모드';
+  document.getElementById('slowBtn').classList.toggle('on', mode==='slow');
+  document.getElementById('fastBtn').classList.toggle('on', mode==='fast');
+  document.getElementById('hyperBtn').classList.toggle('on', mode==='hyper');
+  document.getElementById('slowBtn').textContent = mode==='slow' ? 'SLOW 모드 (선택됨)' : 'SLOW 모드';
+  document.getElementById('fastBtn').textContent = mode==='fast' ? 'FAST 모드 (선택됨)' : 'FAST 모드';
+  document.getElementById('hyperBtn').textContent = mode==='hyper' ? 'HYPER 모드 (선택됨)' : 'HYPER 모드';
 }
 
 function gameLoop(){
   if(!running) return;
 
-  let loops = speed === 'slow' ? 3 : speed === 'fast' ? 80 : 1000;
+  let loops = speed === 'slow' ? 2 : speed === 'fast' ? 70 : 1000;
 
   for(let i=0; i<loops; i++){
+    if(won < 30000){
+      if(autoMode===1){ running=false; alert("금액 부족으로 자동 중단"); return; }
+      charge();
+    }
     if(!autoSelect()){
-      if(money < 100000) charge();
-      else buy(100000,4);
-      if(speed === 'slow') render();
+      buyPremium();  // 현실 반영: 전설 노리는 사람은 무조건 프리미엄
+      if(speed==='slow') render();
     } else {
       upgrade();
     }
   }
-
-  if(speed !== 'slow') render();
-
+  if(speed!=='slow') render();
   requestAnimationFrame(gameLoop);
 }
 
@@ -242,15 +273,14 @@ function toggleAuto(mode){
     return;
   }
   running = true; autoMode = mode;
-  sessionSpent = 0;
-  document.getElementById('session').textContent = '0';
+  sessionSpent = 0; updateMoney();
   document.getElementById('btn'+mode).classList.add('on');
   document.getElementById('btn'+mode).textContent = mode===1?'작동중 (1마리 멈춤)':'작동중 (무한 기록)';
   gameLoop();
 }
 
-render(); updateSlot();
-setSpeed('hyper');
+render(); updateSlot(); updateMoney();
+setSpeed('fast');
 </script>
 </body>
 </html>
