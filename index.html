@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>마비노기 모바일 펫 럭키박스 시뮬레이터 - 2025 최신 확정 확률판</title>
+<title>펫 시뮬레이터</title>
 <style>
   body {font-family: 'Malgun Gothic', sans-serif; background:#000; color:#fff; margin:0; padding:20px; min-height:100vh;}
   .wrap {max-width:1400px; margin:auto;}
@@ -51,7 +51,7 @@
 
 <div class="wrap">
   <div class="main">
-    <h1>마비노기 모바일 펫 럭키박스 시뮬레이터<br><span style="font-size:22px;color:#ff5252;">2025년 최신 확정 확률 100% 적용 · 천장 없음</span></h1>
+    <h1>펫 시뮬레이터<br><span style="font-size:22px;color:#ff5252;">천장 없음</span></h1>
 
     <div class="money">
       보유 금액: <span id="won">100,000</span>원<br>
@@ -203,12 +203,20 @@ function upgrade(){
 
 function showFireworks(lv){
   const fireworks = document.getElementById('fireworks');
-  const intensity = lv * 20; // 더 큰 차이: lv1=20, lv2=40, ..., lv5=100
+  fireworks.innerHTML = ''; // 이전 폭죽 제거하여 렉 줄임
+  let intensity;
+  if(speed === 'slow') {
+    intensity = lv * 20;
+  } else if(speed === 'fast') {
+    intensity = lv * 5; // fast 모드에서 간소화 (파티클 수 줄임)
+  } else {
+    return; // hyper에서는 표시 안 함
+  }
   const color = colors[lv];
-  const baseSize = 10 + lv * 3; // 크기 차이: lv1=13px, lv5=25px
-  const maxScale = 3 + lv * 1; // 스케일 차이: lv1=4, lv5=8
-  const baseDuration = 0.5 + lv * 0.4; // 지속 시간 차이: lv1=0.9s, lv5=2.5s
-  const removeTime = 1500 + lv * 1000; // 제거 시간: lv1=2500ms, lv5=6500ms
+  const baseSize = 10 + lv * 3;
+  const maxScale = 3 + lv * 1;
+  const baseDuration = 0.5 + lv * 0.4;
+  const removeTime = 1500 + lv * 1000;
 
   for(let i=0; i<intensity; i++){
     const p = document.createElement('div');
@@ -218,7 +226,7 @@ function showFireworks(lv){
     p.style.height = baseSize + 'px';
     p.style.left = Math.random()*100 + '%';
     p.style.top = Math.random()*100 + '%';
-    p.style.setProperty('--dx', (Math.random()-0.5)* (200 + lv * 50) + 'px'); // 이동 거리 차이
+    p.style.setProperty('--dx', (Math.random()-0.5)* (200 + lv * 50) + 'px');
     p.style.setProperty('--dy', (Math.random()-0.5)* (200 + lv * 50) + 'px');
     p.style.setProperty('--scale', maxScale);
     p.style.setProperty('--duration', (Math.random()*0.5 + baseDuration) + 's');
@@ -250,8 +258,7 @@ function checkLegend(petName){
   
   if(autoMode===1){
     running = false;
-    toggleAuto(1); // 강제 토글로 버튼 상태 초기화 및 멈춤
-    alert(`전설 펫 ${num}마리째 획득!\n이름: ${petName}\n소비: ${thisSpent.toLocaleString()}원`);
+    toggleAuto(1); // 알림창 없이 멈춤만
   } else {
     sessionSpent = 0;
     updateMoney();
