@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>펫 럭키박스</title>
+<title>마비노기 모바일 펫 럭키박스 시뮬레이터 - 2025 최신 확정 확률판</title>
 <style>
   body {font-family: 'Malgun Gothic', sans-serif; background:#000; color:#fff; margin:0; padding:20px; min-height:100vh;}
   .wrap {max-width:1400px; margin:auto;}
@@ -38,13 +38,20 @@
 
   .legend-title {text-align:center; color:gold; font-size:32px; margin:20px 0 10px; text-shadow:0 0 15px gold;}
   .info {color:#ff5252; font-size:15px; text-align:center; margin-top:15px; line-height:1.6;}
+
+  #fireworks {position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:10;}
+  .particle {position:absolute; border-radius:50%; animation:explode var(--duration) ease-out forwards;}
+  @keyframes explode {
+    0% {transform:scale(0); opacity:1;}
+    100% {transform:scale(var(--scale)) translate(var(--dx), var(--dy)); opacity:0;}
+  }
 </style>
 </head>
 <body>
 
 <div class="wrap">
   <div class="main">
-    <h1>펫 럭키박스 시뮬레이터<br><span style="font-size:22px;color:#ff5252;">2025년 천장 없음</span></h1>
+    <h1>마비노기 모바일 펫 럭키박스 시뮬레이터<br><span style="font-size:22px;color:#ff5252;">2025년 최신 확정 확률 100% 적용 · 천장 없음</span></h1>
 
     <div class="money">
       보유 금액: <span id="won">100,000</span>원<br>
@@ -89,6 +96,7 @@
     </div>
   </div>
 </div>
+<div id="fireworks"></div>
 
 <script>
 let pets = [], sel = [], won = 100000, id = 0;
@@ -98,6 +106,7 @@ let records = [];
 let speed = 'hyper';
 
 const 등급 = ['','고급','레어','엘리트','에픽','전설'];
+const colors = {1: '#2e7d32', 2: '#1565c0', 3: '#8e24aa', 4: '#e91e63', 5: '#ffb300'};
 
 // 정확한 확정 확률 (2025 최신)
 const 일반티켓 = {1:0.945, 2:0.05, 3:0.005, 4:0,    5:0};     // 고급 94.5%, 레어 5%, 엘리트 0.5%
@@ -183,11 +192,39 @@ function upgrade(){
   const base = pets.find(p=>p.id===sel[0]);
   pets = pets.filter(p => !sel.slice(1).includes(p.id));
   sel = [];
-  if(Math.random() < 승급확률[base.lv]){
+  const oldLv = base.lv;
+  if(Math.random() < 승급확률[oldLv]){
     base.lv++; base.n += "★";
+    if(speed !== 'hyper') showFireworks(base.lv);
     if(base.lv===5) checkLegend(base.n);
   }
   render(); updateSlot();
+}
+
+function showFireworks(lv){
+  const fireworks = document.getElementById('fireworks');
+  const intensity = lv * 20; // 더 큰 차이: lv1=20, lv2=40, ..., lv5=100
+  const color = colors[lv];
+  const baseSize = 10 + lv * 3; // 크기 차이: lv1=13px, lv5=25px
+  const maxScale = 3 + lv * 1; // 스케일 차이: lv1=4, lv5=8
+  const baseDuration = 0.5 + lv * 0.4; // 지속 시간 차이: lv1=0.9s, lv5=2.5s
+  const removeTime = 1500 + lv * 1000; // 제거 시간: lv1=2500ms, lv5=6500ms
+
+  for(let i=0; i<intensity; i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.background = color;
+    p.style.width = baseSize + 'px';
+    p.style.height = baseSize + 'px';
+    p.style.left = Math.random()*100 + '%';
+    p.style.top = Math.random()*100 + '%';
+    p.style.setProperty('--dx', (Math.random()-0.5)* (200 + lv * 50) + 'px'); // 이동 거리 차이
+    p.style.setProperty('--dy', (Math.random()-0.5)* (200 + lv * 50) + 'px');
+    p.style.setProperty('--scale', maxScale);
+    p.style.setProperty('--duration', (Math.random()*0.5 + baseDuration) + 's');
+    fireworks.appendChild(p);
+    setTimeout(() => p.remove(), removeTime);
+  }
 }
 
 function autoSelect(){
@@ -251,7 +288,6 @@ function gameLoop(){
 
   for(let i=0; i<loops; i++){
     if(won < 30000){
-      if(autoMode===1){ running=false; alert("금액 부족으로 자동 중단"); return; }
       charge();
     }
     if(!autoSelect()){
@@ -280,7 +316,7 @@ function toggleAuto(mode){
 }
 
 render(); updateSlot(); updateMoney();
-setSpeed('fast');
+setSpeed('hyper');
 </script>
 </body>
 </html>
