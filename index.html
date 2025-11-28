@@ -203,14 +203,15 @@ function upgrade(){
 
 function showFireworks(lv){
   const fireworks = document.getElementById('fireworks');
-  fireworks.innerHTML = ''; // 이전 폭죽 제거하여 렉 줄임
-  let intensity;
+  let intensity, clearPrevious = false;
   if(speed === 'slow') {
-    intensity = lv * 20;
+    intensity = lv * 20; // 이전 스타일: 더 많은 파티클, 이전 파티클 유지
   } else if(speed === 'fast') {
-    intensity = lv * 5; // fast 모드에서 간소화 (파티클 수 줄임)
+    fireworks.innerHTML = ''; // 현재 스타일: 이전 파티클 제거, 적은 파티클
+    intensity = lv * 5;
+    clearPrevious = true;
   } else {
-    return; // hyper에서는 표시 안 함
+    return;
   }
   const color = colors[lv];
   const baseSize = 10 + lv * 3;
